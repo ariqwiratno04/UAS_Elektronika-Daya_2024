@@ -5,7 +5,7 @@
 
 ## Deskripsi Proyek
 
-Proyek ini berfokus pada **Elektronika Daya** dan mencakup beberapa file executable yang digunakan untuk simulasi.
+Proyek ini bertujuan untuk memenuhi Ujian Akhir Semester Elektronika Daya, yang mencakup desain Buck Converter dan Three Phase Inverter menggunakan LTSPICE
 
 ## File Executable
 
