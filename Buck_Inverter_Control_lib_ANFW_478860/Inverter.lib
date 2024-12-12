@@ -1,0 +1,86 @@
+*Constant
+.subckt constant out
+E1 out 0 value={k}
+.ends constant
+
+*Gain
+.subckt Gain in out
+E1 out 0 value={K*v(in)}
+.ends Gain
+
+*Integral
+.subckt integral in out
+B1 out 0 V=I(L1)
+R1 N002 N001 1n
+L1 N002 0 1
+B2 N001 0 V=V(in)
+.ends integral
+
+*PI Controller
+.subckt PI_ctrl in out
+XU1 in N002 Gain K={Ki} Ki={Ki}
+XU3 N002 N003 integral
+XU2 in N001 Gain K={Kp} Kp = {Kp}
+XU4 N001 N003 out Adder2
+.ends PI_ctrl
+
+*PI Controller_2
+.subckt PI_ctrl_2 in out
+XU1 in prop Gain A={k}
+XU2 in mid Gain A={1/tau}
+XU3 mid integ idt ic=0
+XU4 prop integ out Adder2
+Rin in 0 10Meg
+.ends PI_ctrl_2
+
+*ABC to DQ
+.subckt abc_to_dq a b c theta D Q
+B1 alpha 0 V=(2/3)*V(a)-(1/3)*V(b)-(1/3)*V(c)
+B2 beta 0 V=(sqrt(3)/3)*V(b)-(sqrt(3)/3)*V(c)
+B3 D 0 V=cos(V(theta))*V(alpha)+sin(V(theta))*V(beta)
+B4 Q 0 V=cos(V(theta))*V(beta)-sin(V(theta))*V(alpha)
+.ends abc_to_dq
+
+*DQ to ABC
+.subckt dq_to_abc d q theta a b c
+B1 alpha 0 V=(cos(V(theta))*V(d))-(sin(V(theta))*V(q))
+B2 beta 0 V=(sin(V(theta))*V(d))+(cos(V(theta))*V(q))
+B3 a 0 V=V(alpha)+V(zero)
+B4 b 0 V=(-1/2)*V(alpha)+(sqrt(3)/2)*V(beta)+V(zero)
+V1 zero 0 1
+B5 c 0 V=(-1/2)*V(alpha)-(sqrt(3)/2)*V(beta)+V(zero)
+.ends dq_to_abc
+
+*3Phase PLL
+.subckt 3P_PLL a b c theta
+B1 alpha 0 V=(2/3)*V(a)-(1/3)*V(b)-(1/3)*V(c)
+B2 beta 0 V=(sqrt(3)/3)*V(b)-(sqrt(3)/3)*V(c)
+B3 theta 0 V=atan2(V(beta),V(alpha))
+.ends 3P_PLL
+
+*Clarke
+.subckt clarke a b c alpha beta zero
+B1 alpha 0 V=(2/3)*V(a)-(1/3)*V(b)-(1/3)*V(c)
+B2 beta 0 V=(1/3)*sqrt(3)*V(b)-(1/3)*sqrt(3)*V(c)
+B3 zero 0 V=(1/3)*(V(a)+V(b)+V(c))
+.ends clarke
+
+*alphabeta to q
+.subckt ABtoQ alpha beta zero q theta
+B2 q 0 V=-1*V(alpha)*sin(V(theta))+V(beta)*cos(V(theta))+0*V(zero)
+.ends ABtoQ
+
+*PLL_baru
+.subckt PLL_baru a b c theta
+XU2 N001 N009 N004 Sub2
+XU3 N004 N005 Gain A=0.1
+XU4 N004 N010 Gain A=50000
+XU5 N010 N011 integral
+XU6 N005 N011 N006 Adder2
+XU7 N002 N006 N003 Adder2
+XU8 N003 theta integral
+V1 N002 0 50
+V2 N001 0 0
+XU1 N007 N008 N012 theta N009 ABtoQ
+XU9 a b c N007 N008 N012 clarke
+.ends PLL_baru
