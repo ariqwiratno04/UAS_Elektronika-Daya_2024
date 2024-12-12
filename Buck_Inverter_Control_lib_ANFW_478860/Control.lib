@@ -1,0 +1,529 @@
+* ********************************************************
+* Control library for LTspice
+* Created by Marcos Alonso, University of Oviedo, Spain
+* marcos@uniovi.es
+* For educational purposes only
+* Last update: December 22, 2023
+* For information on this library, please visit:
+* https://www.youtube.com/c/MarcosAlonsoElectronics
+**********************************************************
+****************************
+* Adder, 2 inputs
+****************************
+.subckt Adder2 in1 in2 out
+E1 out 0 value={v(in1)+v(in2)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+.ends Adder2
+****************************
+* Adder, 3 inputs
+****************************
+.subckt Adder3 in1 in2 in3 out
+E1 out 0 value={v(in1)+v(in2)+v(in3)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+Rin3 in3 0 10Meg
+.ends Adder3
+****************************
+* Subtractor, 2 inputs
+****************************
+.subckt Sub2 in1 in2 out
+E1 out 0 value={v(in1)-v(in2)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+.ends Sub2
+****************************
+* Subtractor, 3 inputs
+****************************
+.subckt Sub3 in1 in2 in3 out
+E1 out 0 value={v(in1)-v(in2)-v(in3)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+Rin3 in3 0 10Meg
+.ends Sub3
+****************************
+* Constant
+****************************
+.subckt Constant out
+E1 out 0 value={K}
+.ends Constant
+****************************
+* Multiplier
+****************************
+.subckt Mul in1 in2 out
+E1 out 0 value = {V(in1)*V(in2)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+.ends Mul
+****************************
+* Divider
+****************************
+.subckt Div in1 in2 out
+E1 out 0 value = {V(in1)/( V(in2) + eps)}
+Rin1 in1 0 10Meg
+Rin2 in2 0 10Meg
+.ends Div
+****************************
+* Power
+****************************
+.subckt Pow in out
+E1 out 0 value = {V(in)**p}
+Rin in 0 10Meg
+.ends Pow
+****************************
+* Log10
+****************************
+.subckt log10 in out
+E1 out 0 value = {log10(V(in))}
+Rin in 0 10Meg
+.ends log10
+****************************
+* Gain
+****************************
+.subckt Gain in out
+E1 out 0 value={A*v(in)}
+Rin in 0 10Meg
+.ends Gain
+****************************
+* Integrator
+****************************
+.subckt Integ in out
+E1 in1 0 value={v(in)}
+E2 out 0 value={i(L1)}
+L1 ind 0 1
+R1 ind in1 1n
+Rin in 0 10Meg
+.ic i(L1) {ic}
+.ends Integ
+******************************************************
+* Integrator using built-in idt function
+******************************************************
+.subckt idt in out
+Rin in 0 10Meg
+E1 out 0 value={idt(v(in),ic)}
+.ends idt
+*****************************************************
+* Integrator with reset using built-in idt function
+*****************************************************
+.subckt idtr in out reset
+Rin in 0 10Meg
+Rr  reset 0 10Meg
+E1 out 0 value={idt(v(in),ic, v(reset))}
+.ends idtr
+********************************************
+* Differentiator
+********************************************
+.subckt Diff in out
+E1 in1 0 value={v(in)}
+E2 out 0 value={i(C1)}
+R1 cap in1 1n
+C1 cap 0 1
+Rin in 0 10Meg
+.ends Diff
+**********************************************
+* Differentiator using built-in ddt function
+**********************************************
+.subckt ddt in out
+Rin in 0 10Meg
+E1 out 0 value={ddt(V(in))}
+.ends ddt
+**********************************************
+* Limiter
+**********************************************
+.subckt Limiter in out
+E1 in1 0 value={if(V(in)>vth, vth,V(in))}
+E3 out 0 value={if(V(in1)<vtl, vtl,V(in1))}
+Rin in 0 10Meg
+.ends Limiter
+**********************************************
+* Transfer Function 1
+**********************************************
+.subckt TF1 in out
+E1 out 0 in 0 Laplace={{k}/(s+{a})}
+Rin in 0 10Meg
+.ends TF1
+**********************************************
+* Transfer Function 2
+**********************************************
+.subckt TF2 in out
+E1 out 0 in 0 Laplace={{k}*(s+{b})/(s+{a})}
+Rin in 0 10Meg
+.ends TF2
+**********************************************
+* Transfer Function 3
+**********************************************
+.subckt TF3 in out
+E1 out 0 in 0 Laplace={{k}/({a}*s**2+{b}*s+c)}
+Rin in 0 10Meg
+.ends TF3
+**************************************************************
+* Transfer Function 4
+**************************************************************
+.subckt TF4 in out
+E1 out 0 in 0 Laplace={{k}*({d}*s+{e})/({a}*s**2+{b}*s+c)}
+Rin in 0 10Meg
+.ends TF4
+**************************************************************
+* Transfer Function 5
+**************************************************************
+.subckt TF5 in out
+E1 out 0 in 0 Laplace={{k}*(s+{c})/((s+{a})*(s+{b}))}
+Rin in 0 10Meg
+.ends TF5
+**************************************************************
+* Transfer Function 6
+**************************************************************
+.subckt TF6 in out
+E1 out 0 in 0 Laplace={{k}*(s+{c})*(s+{d})/((s+{a})*(s+{b}))}
+Rin in 0 10Meg
+.ends TF6
+**********************************************
+* Step
+**********************************************
+.subckt step out
+V1 out 0 PULSE(0 {A} {td} {1/SR} {1/SR} 1meg 10meg)
+.ends step
+**********************************************
+* AC voltage source
+**********************************************
+.subckt acs out
+V1 out 0 AC {Amp} {Phase}
+.ends acs
+*******************************************************************
+* Sawtooth
+*******************************************************************
+.subckt sawtooth out
+V1 out 0 PULSE({Vlow} {Vhigh} 0 {0.99*1/f} {0.01*1/f} 0 {1/f})
+.ends sawtooth
+*******************************************************************
+* CLK
+*******************************************************************
+.subckt clk out
+V1 out 0 PULSE(0 {Vhigh} {tdelay} {1/SR} {1/SR} {ton} {1/f})
+.ends clk
+*******************************************************************
+* Sine waveform
+*******************************************************************
+.subckt sinew out
+V1 out 0 SINE({dc} {A} {f} 0 0 {phi})
+.ends sinew
+*******************************************************************
+* ABS
+*******************************************************************
+.subckt abs in out
+E1 out 0 value = {k*abs(V(in))}
+Rin in 0 10Meg
+.ends abs
+*******************************************************************
+* Time
+*******************************************************************
+.subckt time out
+E1 out 0 value = {time}
+.ends time
+*******************************************************************
+* Sine
+*******************************************************************
+.subckt sine in out
+E1 out 0 value = {A*sin(w*V(in) + phi*pi/180)}
+Rin in 0 10Meg
+.ends sine
+*******************************************************************
+* Exp
+*******************************************************************
+.subckt exp in out
+E1 out 0 value = {k1*exp(k2*V(in)) + k3}
+Rin in 0 10Meg
+.ends exp
+*******************************************************************
+* Floor
+*******************************************************************
+.subckt floor in out
+E1 out 0 value = {floor(V(in))}
+Rin in 0 10Meg
+.ends floor
+*******************************************************************
+* Sgn
+*******************************************************************
+.subckt sgn in out
+E1 out 0 value={if(V(in)>0, {Vhigh}, {Vlow})}
+Rin in 0 10Meg
+.ends sgn
+*******************************************************************
+* Sqrt
+*******************************************************************
+.subckt sqrt in out
+E1 out 0 value = {sqrt(V(in))}
+Rin in 0 10Meg
+.ends sqrt
+*******************************************************************
+* Current sensor
+*******************************************************************
+.subckt isense in+ in- out
+V1 in+ in- 0
+E1 out 0 value = {k*i(V1)}
+.ends isense
+*******************************************************************
+* Comparator
+*******************************************************************
+.subckt comp in+ in- out
+E1 out 0 value = {if(V(in+, in-)>0, {Vhigh}, {Vlow})}
+Rin+ in+ 0 10Meg
+Rin- in- 0 10Meg
+Rin  in+ in- 1Meg
+.ends comp
+*******************************************************************
+* Comparator with hysteresis
+*******************************************************************
+.subckt comp_h in out out1
+XU1 in hh ho comp Vhigh=1 Vlow=0
+XU2 hl in lo comp Vhigh=1 Vlow=0
+V1 hl 0 {Vhl}
+V2 hh 0 {Vhh}
+A1 ho lo 0 0 0 out1 out 0 SRFLOP
+Rin in 0 10Meg
+.ends comp_h
+*******************************************************************
+* PI compensator
+*******************************************************************
+.subckt pi_comp in out
+XU1 in prop Gain A={k}
+XU2 in mid Gain A={1/tau}
+XU3 mid integ idt ic=0
+XU4 prop integ out Adder2
+Rin in 0 10Meg
+.ends pi_comp
+*******************************************************************
+* PID compensator
+*******************************************************************
+.subckt pid_comp in out
+XU1 in prop Gain A={k}
+XU2 in mid1 Gain A={1/tau_i}
+XU3 mid1 integ idt ic=0
+XU4 diff prop integ out Adder3
+XU5 in mid2 Gain A={tau_d}
+XU6 mid2 diff ddt
+Rin in 0 10Meg
+.ends pid_comp
+*******************************************************************
+* Gate driver
+*******************************************************************
+.subckt driver in out+ out-
+E1 mid out- value={k*V(in)}
+R1 out+ mid 10
+Rin in 0 10Meg
+.ends driver
+*******************************************************************
+* Switch
+*******************************************************************
+.subckt switch ctrl t1 t2
+S1 t2 t1 ctrl 0 SW1
+Rdum ctrl 0 10Meg
+.model SW1 SW (Ron={Ron} Roff={Roff} Vt={Vt} Vh={Vh})
+.ends switch
+*******************************************************************
+* Idealized diode
+*******************************************************************
+.subckt idiode A K
+D1 A K Diode
+.model Diode D(Ron={Ron} Roff={Roff} Vfwd={Vfwd} Vrev={Vrev})
+.ends idiode
+*******************************************************************
+* Linear transformation
+*******************************************************************
+.subckt lineart in out
+E1 out 0 value={m*V(in)+k}
+Rin in 0 10Meg
+.ends lineart
+*******************************************************************
+* One-shot circuit
+* See video PE #60 for last changes on this component
+*******************************************************************
+.subckt oneshot tshot clk out out1
+A1 set reset 0 0 0 out1 out 0 SRFLOP
+A3 0 h 0 trig 0 0 set 0 AND
+R1 0 trig 1
+C1 clk1 trig 10n
+XU2 h Constant K=1
+XU3 ta Time
+XU4 set st ta switch Ron=0.1m Roff=10meg Vt=0.5 Vh=-0.2
+C2 st 0 10u
+XU5 st ts1 ut Adder2
+XU7 ta ut reset comp Vhigh=1 Vlow=0
+XU9 tshot ts1 Gain A={tgain}
+XU1 clk clk1 Gain A=2
+.ends oneshot
+*******************************************************************
+* Voltage Controlled Oscillator
+*******************************************************************
+.subckt vco f d out
+C2 tri 0 1
+XU1 del tri 0 switch Ron=1n Roff=1meg Vt=0.5 Vh=-0.2
+XU3 tri comp NC_01 comp_h Vhh=1.1 Vhl=0.15
+R2 comp del 1
+C1 del 0 1n
+G1 0 tri f1 0 1
+XU4 refd tri out comp Vhigh=1 Vlow=0
+XU6 d1 min refd Adder2
+XU7 min Constant K={0.1}
+XU2 d d1 Gain A={1/dgain}
+XU5 f f1 Gain A={fgain}
+Rdum NC_01 0 1Meg
+.ic V(tri)=0.1
+.ends vco
+*******************************************************************
+* Zero order hold
+*******************************************************************
+.subckt zoh in clk out
+XU1 sample in in_s switch Ron=1 Roff=10meg Vt=0.5 Vh=-0.2
+R1 0 dt 1
+C1 clk1 dt {tau}
+A1 dt 0 0 0 0 0 sample 0 BUF
+C2 in_s 0 {tau/10}
+E1 out 0 value={V(in_s)}
+XU2 CLK clk1 Gain A=2
+.ends zoh
+****************************************************************************
+* AD converter
+****************************************************************************
+.subckt adc in clk out
+E1 out 0 value = {floor ( (V(samp_l) - Vrefl)*2**nbits/(Vrefh - Vrefl) )}
+XU2 samp samp_l Limiter vth={Vrefh} vtl={Vrefl}
+XU1 in CLK samp zoh tau={tau}
+.ends adc
+****************************************************************************
+* Digital ramp
+****************************************************************************
+.subckt dramp out
+XU3 ramp clk out adc Vrefh=1 Vrefl=0 nbits={nbits} tau={tau}
+XU1 ramp Sawtooth Vlow=0 Vhigh=1 f={f}
+XU2 clk CLK tdelay=0 Vhigh=1 SR=1e8 ton={0.2*1/(2**nbits*f)} f={2**nbits*f}
+.ends dramp
+****************************************************************************
+* Digital sine
+****************************************************************************
+.subckt dsine out
+XU3 sin clk out adc Vrefh=1 Vrefl=0 nbits={nbits} tau={tau}
+XU2 clk CLK tdelay=0 Vhigh=1 SR=1e8 ton={0.2*1/(2**nbits*f)} f={2**nbits*f}
+XU1 sin sinew dc={0.5} A=0.5 f={f} phi={phi}
+.ends dsine
+****************************************************************************
+* Digital PWM
+****************************************************************************
+.subckt dpwm in out1 out
+XU2 in out1 out comp Vhigh={Vhigh} Vlow={Vlow}
+XU3 out1 dramp f={f} nbits={nbits} tau={tau}
+.ends dpwm
+****************************************************************************
+* Discrete delay
+****************************************************************************
+.subckt ddelay yn clk yn-1
+A1 CLK 0 0 0 0 _clk 0 0 BUF
+XU1 yn _clk int zoh tau={tau}
+XU2 int CLK yn-1 zoh tau={tau}
+.ends ddelay
+****************************************************************************
+* Discrete delay with three outputs
+****************************************************************************
+.subckt ddelay1 yn clk yn-1 yn-2 yn-3
+XU1 yn CLK yn-1 ddelay tau={tau}
+XU2 yn-1 CLK yn-2 ddelay tau={tau}
+XU3 yn-2 CLK yn-3 ddelay tau={tau}
+.ends ddelay1
+****************************************************************************
+* First-order low-pass filter
+****************************************************************************
+.subckt lpf in out
+XU1 in 1 Gain A={k}
+XU4 1 out 2 Sub2
+XU2 2 3 Gain A={wo}
+XU3 3 out idt ic={ic}
+.ends lpf
+****************************************************************************
+* Second-order system
+****************************************************************************
+.subckt sos in out
+XU1 in 5 Gain A={k}
+XU2 1 2 idt ic={ic1}
+XU3 2 out idt ic={ic0}
+XU4 2 3 Gain A={2*xi/wo}
+XU5 5 3 out 4 Sub3
+XU6 4 1 Gain A={wo**2}
+.ends sos
+****************************************************************************
+* Ideal voltage trafo
+****************************************************************************
+.subckt ivtrafo v11 v12 v21 v22
+E1 v20 v22 value={n*v(v11,v22)}
+G1 v11 v12 value={n*i(E1)}
+R1 v21 v20 1m
+.ends ivtrafo
+*******************************************************************
+* Idealized Zener diode
+*******************************************************************
+.subckt zdiode A K
+XU1 K N001 idiode Vfwd=10m Ron=10m Vrev=10k Roff=1meg
+XU2 A K idiode Vfwd={Vfwd} Ron={Ron} Vrev=10k Roff=1meg
+V1 N002 A {Vz}
+R1 N001 N002 {Rz}
+.ends zdiode
+***************************************************
+* Piecewise NPN BJT model
+***************************************************
+.subckt pwnpn b c e
+D1 B N005 Dmodel
+R1 N006 N005 {Rbe}
+V1 N006 E {Vth}
+G1 N001 E value={Beta*i(D1)}
+D2 N003 N001 Dmodel
+R4 N002 N004 {Rce}
+D3 N001 N002 Dmodel
+D4 C N001 Dmodel
+E1 N004 E value = {Vsat + i(G1)*Rsat}
+R5 N003 N004 {Rsat}
+.model Dmodel D(Ron=1m Roff=100Meg Vfwd=1m Vrev=1k)
+.ends pwnpn
+***************************************************
+* Piecewise PNP BJT model
+***************************************************
+.subckt pwpnp b c e
+D1 E N006 Dmodel
+R1 N006 N005 {Rbe}
+V1 N005 B {Vth}
+G1 E N001 value={Beta*i(D1)}
+D2 N002 N004 Dmodel
+R4 N003 E {Rce}
+D3 N003 N002 Dmodel
+D4 N001 C Dmodel
+E1 N002 N001 value = {Vsat + i(G1)*Rsat}
+R5 N004 E {Rsat}
+.model Dmodel D(Ron=1m Roff=100Meg Vfwd=1m Vrev=1k)
+.ends pwpnp
+***************************************************
+* PWM Generator
+***************************************************
+.subckt PWM_gen In Out Out_inv
+XU1 In N001 Out comp Vhigh={Vhi_comp} Vlow={Vlo_comp} Vhigh={Vhi_comp} Vlow={Vlo_comp}
+XU4 N001 Sawtooth Vlow={Vlo} Vhigh={Vhi} f={f} Vlow={Vlo} Vhigh={Vhi} f={f}
+XU2 N001 In Out_inv comp Vhigh={Vhi_comp} Vlow={Vlo_comp} Vhigh={Vhi_comp} Vlow={Vlo_comp}
+.ends PWM_gen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
